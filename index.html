@@ -18,26 +18,32 @@
         align-items: center;
         text-align: center;
         line-height: 160%;
-        font-family: Arial,serif;
+        font-family: Arial, serif;
         border-radius: 25px;
         color: rgba(0, 0, 0, 0.75);
         font-size: 35px;
         text-transform: uppercase;
         border: 12px solid rgba(0, 0, 0, 0.25);
         cursor: pointer;
+        user-select: none;
     }
 
-    div:hover {
+    div:hover:not(.executed) {
         background-color: red !important;
+    }
+
+    div.executed {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
 </style>
 
 <body>
-<div style="background-color: #FF5733;" onclick="gate()">
+<div style="background-color: #FF5733;" id="gate">
     Brama wejściowa
 </div>
-<div style="background-color: #FFC300" onclick="door()">
+<div style="background-color: #FFC300" id="door">
     Drzwi do budynku
 </div>
 <!--<div style="background-color: #FF5733">-->
@@ -49,12 +55,66 @@
 
 <script>
 
+    function sendCommand(target) {
+        let baseUrl = " https://soctvlmqb5.execute-api.eu-central-1.amazonaws.com/"
+        let url = baseUrl + target
+
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('POST', url);
+
+        xhr.send();
+
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                alert(`Error ${xhr.status}: ${xhr.statusText}`);
+            } else { // show the result
+                console.log(`Done, got ${xhr.response.length} bytes`);
+            }
+        };
+
+        xhr.onprogress = function (event) {
+            if (event.lengthComputable) {
+                console.log(`Received ${event.loaded} of ${event.total} bytes`);
+            } else {
+                console.log(`Received ${event.loaded} bytes`);
+            }
+
+        };
+
+        xhr.onerror = function () {
+            alert("Request failed");
+        };
+    }
+
+    function markInactive(element) {
+        element.classList.add("executed");
+        setTimeout(function () {
+            element.classList.remove("executed");
+        }, 5000);
+    }
+
+    function isActive(element) {
+        return !element.classList.contains("executed");
+    }
+
     function gate() {
-        // alert('gate')
+        if (isActive(this)) {
+            console.log("will open")
+            markInactive(this)
+            sendCommand('comelit-gate');
+        }
     }
+
     function door() {
-        // alert('door')
+        if (isActive(this)) {
+            markInactive(this)
+            sendCommand('comelit-open-1b');
+        }
     }
+
+    document.getElementById("gate").onclick = gate;
+    document.getElementById("door").onclick = door;
 
 </script>
 
