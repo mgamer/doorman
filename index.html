@@ -46,9 +46,9 @@
 <div style="background-color: #FFC300" id="door">
     Drzwi do budynku
 </div>
-<!--<div style="background-color: #FF5733">-->
-<!--    Sliding gate-->
-<!--</div>-->
+<div style="background-color: #3cb371" id="sliding-gate">
+    Sliding gate
+</div>
 <!--<div style="background-color: #C70039">-->
 <!--    Garage-->
 <!--</div>-->
@@ -113,8 +113,16 @@
         }
     }
 
+    function slidingGate() {
+        if (isActive(this)) {
+            markInactive(this)
+            sendCommand('comelit-sliding-gate');
+        }
+    }
+
     document.getElementById("gate").onclick = gate;
     document.getElementById("door").onclick = door;
+    document.getElementById("sliding-gate").onclick = slidingGate;
 
 </script>
 
